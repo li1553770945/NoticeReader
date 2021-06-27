@@ -1,0 +1,23 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/root_preferences">
+
+    <PreferenceCategory app:title="权限设置">
+
+        <CheckBoxPreference
+            android:id="@+id/have_authorized"
+            android:defaultValue="false"
+            android:key="have_authorized"
+            android:title="已获取权限" />
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="通知设置">
+
+        <SwitchPreferenceCompat
+            android:id="@+id/open_swith"
+            app:key="open"
+            app:title="开启通知" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>
