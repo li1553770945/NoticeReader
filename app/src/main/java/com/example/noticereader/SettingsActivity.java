@@ -2,27 +2,71 @@ package com.example.noticereader;
 
 
 import android.app.Activity;
+import android.content.ActivityNotFoundException;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.provider.Settings;
+import android.text.TextUtils;
 import android.util.Log;
-import android.util.LogPrinter;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.Toast;
 
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
 import androidx.preference.CheckBoxPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 
-import java.util.List;
-
 public class SettingsActivity extends AppCompatActivity {
-    static Activity thisActivity = null;
+    public static SettingsActivity thisActivity = null;
+    public static void toggleNotificationListenerService(Context context) {
+        PackageManager pm = context.getPackageManager();
+        pm.setComponentEnabledSetting(new ComponentName(context, MyNotificationListenerService .class),
+                PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+
+        pm.setComponentEnabledSetting(new ComponentName(context, MyNotificationListenerService .class),
+                PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP);
+    }
+    private static final String ENABLED_NOTIFICATION_LISTENERS = "enabled_notification_listeners";
+    public boolean isNotificationListenersEnabled() { //判断是否开启通知
+        String pkgName = getPackageName();
+        final String flat = Settings.Secure.getString(getContentResolver(),   ENABLED_NOTIFICATION_LISTENERS);
+        if (!TextUtils.isEmpty(flat)) {
+            final String[] names = flat.split(":");
+            for (int i = 0; i < names.length; i++) {
+                final ComponentName cn = ComponentName.unflattenFromString(names[i]);
+                if (cn != null) {
+                    if (TextUtils.equals(pkgName, cn.getPackageName())) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+    public static void gotoNotificationAccessSetting(Context context) {
+        try {
+            Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
+
+        } catch (ActivityNotFoundException e) {//普通情况下找不到的时候需要再特殊处理找一次
+            try {
+                Intent intent = new Intent();
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                ComponentName cn = new ComponentName("com.android.settings", "com.android.settings.Settings$NotificationAccessSettingsActivity");
+                intent.setComponent(cn);
+                intent.putExtra(":settings:show_fragment", "NotificationAccessSettings");
+                context.startActivity(intent);
+                return;
+            } catch (Exception e1) {
+                e1.printStackTrace();
+            }
+            Toast.makeText(context, "您的手机暂不支持跳转到设置页面，请手动允许权限", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -41,21 +85,30 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        toggleNotificationListenerService(this);
 
     }
     static class Cbx_have_authorized_listener implements Preference.OnPreferenceChangeListener {
+
         @Override
         public boolean onPreferenceChange(Preference preference, Object newValue) {
-            Log.e("test",newValue.toString());
 
             if(Boolean.parseBoolean(newValue.toString()))//如果是要切换成真的
             {
-                //尝试获取权限
-//                        if(//拿到)
-//                            return true;
-//                        else
-                Toast.makeText(thisActivity, "未能获取读取通知权限", Toast.LENGTH_SHORT).show();
-                return false;
+                if (!thisActivity.isNotificationListenersEnabled()) {
+                    Log.e("test","goto");
+                    gotoNotificationAccessSetting(thisActivity);
+                }
+                if(thisActivity.isNotificationListenersEnabled())
+                {
+                    return true;
+                }
+                else
+                {
+                    Toast.makeText(thisActivity, "未能获取读取通知权限", Toast.LENGTH_SHORT).show();
+                    return false;
+                }
+
             }
             else
             {
