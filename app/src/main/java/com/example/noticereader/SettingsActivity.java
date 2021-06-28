@@ -1,7 +1,6 @@
 package com.example.noticereader;
 
 
-import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
@@ -10,7 +9,6 @@ import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.text.TextUtils;
-import android.util.Log;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -96,7 +94,6 @@ public class SettingsActivity extends AppCompatActivity {
             if(Boolean.parseBoolean(newValue.toString()))//如果是要切换成真的
             {
                 if (!thisActivity.isNotificationListenersEnabled()) {
-                    Log.e("test","goto");
                     gotoNotificationAccessSetting(thisActivity);
                 }
                 if(thisActivity.isNotificationListenersEnabled())
