@@ -1,5 +1,9 @@
 package com.example.noticereader;
 
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothProfile;
+import android.content.Context;
+import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.service.notification.NotificationListenerService;
@@ -12,11 +16,23 @@ public class MyNotificationListenerService extends NotificationListenerService {
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     public void onNotificationPosted(StatusBarNotification sbn) {
-        if (sbn.getNotification().tickerText != null)
-        {
-            if(SettingsActivity.open)
-                handleMsg(sbn);
-        }
+        if (sbn.getNotification().tickerText == null)
+            return;
+
+        if(!SettingsActivity.open)
+            return;
+
+        AudioManager mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        mAudioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
+        BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+        if(SettingsActivity.only_headset&&!(mAudioManager.isWiredHeadsetOn()|| BluetoothProfile.STATE_CONNECTED == adapter.getProfileConnectionState(BluetoothProfile.HEADSET)))
+            return;
+
+        handleMsg(sbn);
+
+
+
+
 
     }
 

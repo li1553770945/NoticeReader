@@ -21,6 +21,7 @@ public class SettingsActivity extends AppCompatActivity {
     public static SettingsActivity thisActivity = null;
     public static boolean open = false;
     public static boolean only_love = false;
+    public static boolean only_headset = false;
     public static void toggleNotificationListenerService(Context context) {
         PackageManager pm = context.getPackageManager();
         pm.setComponentEnabledSetting(new ComponentName(context, MyNotificationListenerService .class),
@@ -137,6 +138,16 @@ public class SettingsActivity extends AppCompatActivity {
 
         }
     }
+    static class Swi_only_headset_listener implements Preference.OnPreferenceChangeListener {
+
+        @Override
+        public boolean onPreferenceChange(Preference preference, Object newValue) {
+
+            only_headset = Boolean.parseBoolean(newValue.toString());//如果是要切换成真的
+            return true;
+
+        }
+    }
     public static class SettingsFragment extends PreferenceFragmentCompat {
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -155,6 +166,11 @@ public class SettingsActivity extends AppCompatActivity {
             assert swi_only_love != null;
             only_love= swi_only_love.isChecked();
             swi_only_love.setOnPreferenceChangeListener(new Swi_only_love_listener());
+
+            SwitchPreference swi_only_headset = findPreference("only_headset");
+            assert swi_only_headset != null;
+            only_headset= swi_only_headset.isChecked();
+            swi_only_headset.setOnPreferenceChangeListener(new Swi_only_headset_listener());
         }
 
     }

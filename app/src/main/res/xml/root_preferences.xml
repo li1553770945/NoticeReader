@@ -14,8 +14,14 @@
     <PreferenceCategory app:title="通知设置" >
         <SwitchPreference
             android:defaultValue="false"
+            android:dependency="have_authorized"
             android:key="open"
-            android:title="开启消息朗读" />
+            android:title="开启通知朗读" />
+        <SwitchPreference
+            android:defaultValue="false"
+            android:dependency="open"
+            android:key="only_headset"
+            android:title="仅在连接耳机时朗读" />
         <SwitchPreference
             android:defaultValue="false"
             android:dependency="open"
