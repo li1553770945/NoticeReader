@@ -15,9 +15,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.CheckBoxPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.SwitchPreference;
 
 public class SettingsActivity extends AppCompatActivity {
     public static SettingsActivity thisActivity = null;
+    public static boolean open = false;
+    public static boolean only_love = false;
     public static void toggleNotificationListenerService(Context context) {
         PackageManager pm = context.getPackageManager();
         pm.setComponentEnabledSetting(new ComponentName(context, MyNotificationListenerService .class),
@@ -114,6 +117,26 @@ public class SettingsActivity extends AppCompatActivity {
 
         }
     }
+    static class Swi_open_listener implements Preference.OnPreferenceChangeListener {
+
+        @Override
+        public boolean onPreferenceChange(Preference preference, Object newValue) {
+
+            open = Boolean.parseBoolean(newValue.toString());//如果是要切换成真的
+            return true;
+
+        }
+    }
+    static class Swi_only_love_listener implements Preference.OnPreferenceChangeListener {
+
+        @Override
+        public boolean onPreferenceChange(Preference preference, Object newValue) {
+
+            only_love = Boolean.parseBoolean(newValue.toString());//如果是要切换成真的
+            return true;
+
+        }
+    }
     public static class SettingsFragment extends PreferenceFragmentCompat {
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -122,7 +145,18 @@ public class SettingsActivity extends AppCompatActivity {
             CheckBoxPreference cbx_have_authorized = findPreference("have_authorized");
             assert cbx_have_authorized != null;
             cbx_have_authorized.setOnPreferenceChangeListener(new Cbx_have_authorized_listener());
+
+            SwitchPreference swi_open = findPreference("open");
+            assert swi_open != null;
+            open = swi_open.isChecked();
+            swi_open.setOnPreferenceChangeListener(new Swi_open_listener());
+
+            SwitchPreference swi_only_love = findPreference("only_love");
+            assert swi_only_love != null;
+            only_love= swi_only_love.isChecked();
+            swi_only_love.setOnPreferenceChangeListener(new Swi_only_love_listener());
         }
 
     }
 }
+

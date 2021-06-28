@@ -14,7 +14,8 @@ public class MyNotificationListenerService extends NotificationListenerService {
     public void onNotificationPosted(StatusBarNotification sbn) {
         if (sbn.getNotification().tickerText != null)
         {
-            handleMsg(sbn);
+            if(SettingsActivity.open)
+                handleMsg(sbn);
         }
 
     }
@@ -31,10 +32,24 @@ public class MyNotificationListenerService extends NotificationListenerService {
             Bundle bundle = sbn.getNotification().extras;
             String name = bundle.getString("android.title");
             String message = bundle.getString("android.text");
-            if(name.indexOf("昵称",0)!=-1)
+
+            if(SettingsActivity.only_love&& !name.contains("特别关心"))//是否仅朗读特别关心
+                    return;
+
+            int end = name.indexOf("条新消息)");
+            if(end!=-1)
             {
-                read(name+"说"+message);
+                name = name.substring(0,end-2<0?end:end-2);
             }
+
+            int start = name.indexOf("[特别关心]");
+            if(start!=-1)
+            {
+                name = name.substring(start+6);
+            }
+
+            read(name+"说"+message);
+//
             //Toast.makeText(this, sbn.getPackageName(), Toast.LENGTH_SHORT).show();
         }
 
